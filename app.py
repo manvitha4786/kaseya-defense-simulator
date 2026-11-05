@@ -20,11 +20,10 @@ from models import (
 )
 
 
-BASE_DIR = os.path.dirname(
-    os.path.dirname(os.path.abspath(__file__))
-)
 
-FRONTEND_DIR = os.path.join(BASE_DIR, "frontend")
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+FRONTEND_DIR = BASE_DIR
+
 
 app = Flask(__name__)
 CORS(app)
