@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaseya VSA Defense Simulator</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="stylesss.css">
+</head>
+<body>
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand-mini">
+      <div class="shield-logo"><i data-lucide="shield-check"></i></div>
+    </div>
+
+    <nav class="side-nav">
+      <a class="nav-item active" href="#dashboard"><i data-lucide="house"></i><span>Dashboard</span></a>
+      <a class="nav-item" href="#simulation"><i data-lucide="play-circle"></i><span>Simulation</span></a>
+      <a class="nav-item" href="#history"><i data-lucide="history"></i><span>Simulation History</span></a>
+      <a class="nav-item" href="#timeline"><i data-lucide="chart-no-axes-combined"></i><span>Attack Timeline</span></a>
+      <a class="nav-item" href="#endpoints"><i data-lucide="monitor"></i><span>Endpoints</span></a>
+      <a class="nav-item" href="#alerts"><i data-lucide="bell"></i><span>Alerts</span><b class="notification" id="alertBadge">0</b></a>
+      <a class="nav-item" href="#logs"><i data-lucide="notebook-text"></i><span>Logs</span></a>
+      <a class="nav-item" href="#analysis"><i data-lucide="brain-circuit"></i><span>AI Analysis</span></a>
+      <a class="nav-item" href="#settings"><i data-lucide="settings"></i><span>Settings</span></a>
+    </nav>
+
+    <div class="sidebar-card">
+      <div class="side-art"><i data-lucide="shield"></i></div>
+      <h3>Simulate<br>Detect<br>Defend</h3>
+      <p>Learn how a single compromise can spread across your entire network.</p>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <header class="topbar">
+      <div class="title-area">
+        <div class="header-shield">
+          <i data-lucide="shield"></i>
+          <i data-lucide="lock-keyhole" class="tiny-lock"></i>
+        </div>
+        <div>
+          <h1>Kaseya VSA Defense Simulator</h1>
+          <p>Ransomware Attack Simulation &amp; Detection</p>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <span class="system-ready"><span class="status-dot"></span>System Ready</span>
+        <div class="clock">
+          <strong id="clock">--:--:--</strong>
+          <small id="clockDate">--</small>
+        </div>
+        <div class="guest">
+          <i data-lucide="user-round"></i>
+          <span>Guest</span>
+          <i data-lucide="chevron-down"></i>
+        </div>
+      </div>
+    </header>
+
+    <!-- DASHBOARD -->
+    <section class="content-grid" id="dashboardPage">
+      <div class="main-column">
+
+        <section class="hero panel" id="simulation">
+          <div class="hero-copy">
+            <h2>Kaseya VSA Attack Simulation</h2>
+            <p>See how a Kaseya-style attack can propagate – and how to detect it early.</p>
+            <div class="hero-actions">
+              <button class="btn primary" id="startBtn">
+                <i data-lucide="play"></i>Start Simulation
+              </button>
+              <button class="btn secondary" id="resetBtn">
+                <i data-lucide="refresh-cw"></i>Reset
+              </button>
+            </div>
+          </div>
+          <div class="hero-art"><i data-lucide="shield-alert"></i></div>
+        </section>
+
+        <section class="stats-grid" id="endpoints">
+          <div class="stat-card panel">
+            <div class="stat-icon blue"><i data-lucide="monitor"></i></div>
+            <div>
+              <span>Endpoints</span>
+              <strong>25</strong>
+              <small><em>Online 24</em> | Offline 1</small>
+            </div>
+          </div>
+
+          <div class="stat-card panel">
+            <div class="stat-icon blue"><i data-lucide="server"></i></div>
+            <div>
+              <span>Events</span>
+              <strong id="eventCount">0</strong>
+              <small>Total Logs Generated</small>
+            </div>
+          </div>
+
+          <div class="stat-card panel">
+            <div class="stat-icon green"><i data-lucide="shield-check"></i></div>
+            <div>
+              <span>Threat Level</span>
+              <strong class="green-text" id="threatLevel">LOW</strong>
+              <div class="mini-progress"><span id="threatBar"></span></div>
+            </div>
+          </div>
+
+          <div class="stat-card panel">
+            <div class="stat-icon orange"><i data-lucide="triangle-alert"></i></div>
+            <div>
+              <span>Risk Score</span>
+              <strong><span id="smallRisk">0</span><small class="inline"> / 100</small></strong>
+              <div class="mini-progress"><span id="smallRiskBar"></span></div>
+            </div>
+          </div>
+        </section>
+
+        <section class="two-column">
+          <div class="panel propagation">
+            <div class="panel-heading">
+              <h3>Attack Propagation Map</h3>
+              <div class="legend">
+                <span><b class="red"></b>Compromised</span>
+                <span><b class="yellow"></b>Infected</span>
+                <span><b class="cyan"></b>Normal</span>
+                <span>➜ Propagation</span>
+              </div>
+            </div>
+            <div class="network-map">
+              <div class="map-lines"></div>
+              <div class="server-node central">
+                <i data-lucide="server"></i><strong>VSA Server</strong>
+              </div>
+              <div class="client client-a">
+                <div class="node"><i data-lucide="server"></i></div>
+                <strong>Client A</strong><small>4 endpoints</small>
+                <div class="pcs">
+                  <i data-lucide="monitor"></i><i data-lucide="monitor"></i>
+                  <i data-lucide="monitor"></i><i data-lucide="monitor"></i>
+                </div>
+              </div>
+              <div class="client client-b">
+                <div class="node"><i data-lucide="server"></i></div>
+                <strong>Client B</strong><small>4 endpoints</small>
+                <div class="pcs">
+                  <i data-lucide="monitor"></i><i data-lucide="monitor"></i>
+                  <i data-lucide="monitor"></i><i data-lucide="monitor"></i>
+                </div>
+              </div>
+              <div class="client client-c">
+                <div class="node"><i data-lucide="server"></i></div>
+                <strong>Client C</strong><small>4 endpoints</small>
+                <div class="pcs">
+                  <i data-lucide="monitor"></i><i data-lucide="monitor"></i>
+                  <i data-lucide="monitor"></i><i data-lucide="monitor"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="panel attack-progress">
+            <div class="panel-heading"><h3>Attack Chain Progress</h3></div>
+            <div id="stageList" class="stage-list"></div>
+          </div>
+        </section>
+
+        <section class="two-column lower-row">
+          <div class="panel logs" id="logs">
+            <div class="panel-heading">
+              <h3>Recent Security Events</h3>
+              <a href="#logs">View All →</a>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr><th>Time</th><th>Event</th><th>Source</th><th>Severity</th></tr>
+                </thead>
+                <tbody id="eventTable">
+                  <tr><td colspan="4" class="empty">No events detected yet.</td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel chart-panel" id="timeline">
+            <div class="panel-heading"><h3>Attack Timeline</h3></div>
+            <canvas id="riskChart"></canvas>
+          </div>
+        </section>
+      </div>
+
+      <aside class="right-column">
+        <section class="panel risk-panel">
+          <h3>Risk Score</h3>
+          <div class="gauge">
+            <div class="gauge-value" id="gaugeValue">0<small>/ 100</small></div>
+          </div>
+          <div class="risk-label">
+            Threat Level: <strong id="gaugeThreat">LOW</strong>
+          </div>
+        </section>
+
+        <section class="panel ai-panel" id="analysis">
+          <div class="ai-title">
+            <i data-lucide="brain-circuit"></i>
+            <h3>AI Analysis</h3>
+            <span id="aiBadge">Low Risk</span>
+          </div>
+          <h4>Why this is flagged:</h4>
+          <ul id="reasonList">
+            <li>Waiting for simulation events</li>
+          </ul>
+          <hr>
+          <h4>Recommended Actions:</h4>
+          <ul class="actions-list">
+            <li><i data-lucide="lock"></i>Isolate affected endpoints</li>
+            <li><i data-lucide="user-round-x"></i>Disable suspicious account</li>
+            <li><i data-lucide="package-check"></i>Verify software updates</li>
+            <li><i data-lucide="database-backup"></i>Check backups</li>
+            <li><i data-lucide="file-search"></i>Investigate server logs</li>
+          </ul>
+        </section>
+      </aside>
+    </section>
+
+    <!-- ALERTS MANAGEMENT PAGE -->
+    <section id="alertsPage" class="alerts-page" hidden>
+      <div class="history-header">
+        <div>
+          <h2>Security Alerts</h2>
+          <p>Monitor, acknowledge and resolve detected threats.</p>
+        </div>
+        <button class="btn secondary" id="refreshAlertsBtn">
+          <i data-lucide="refresh-cw"></i>Refresh Alerts
+        </button>
+      </div>
+
+      <div class="history-stats">
+        <div class="panel history-stat">
+          <span>Total Alerts</span>
+          <strong id="alertsTotal">0</strong>
+        </div>
+        <div class="panel history-stat">
+          <span>High Severity</span>
+          <strong id="alertsHigh">0</strong>
+        </div>
+        <div class="panel history-stat">
+          <span>Medium Severity</span>
+          <strong id="alertsMedium">0</strong>
+        </div>
+      </div>
+
+      <div class="panel history-table-panel">
+        <div class="panel-heading">
+          <h3>Detected Security Alerts</h3>
+        </div>
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Alert ID</th>
+                <th>Time</th>
+                <th>Alert</th>
+                <th>Source</th>
+                <th>Severity</th>
+                <th>Threat Level</th>
+                <th>Simulation</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="alertsTableBody">
+              <tr><td colspan="9" class="empty">Loading alerts...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    
+<!-- SECURITY LOGS PAGE -->
+<section id="logsPage" class="logs-page" hidden>
+  <div class="history-header">
+    <div>
+      <h2>Security Event Logs</h2>
+      <p>Explore and filter all saved simulation events.</p>
+    </div>
+    <button class="btn secondary" id="refreshLogsBtn">
+      <i data-lucide="refresh-cw"></i>Refresh Logs
+    </button>
+  </div>
+
+  <div class="history-stats">
+    <div class="panel history-stat">
+      <span>Total Logged Events</span>
+      <strong id="logsTotal">0</strong>
+    </div>
+    <div class="panel history-stat">
+      <span>High Severity Events</span>
+      <strong id="logsHigh">0</strong>
+    </div>
+    <div class="panel history-stat">
+      <span>Simulations Recorded</span>
+      <strong id="logsSimulations">0</strong>
+    </div>
+  </div>
+
+  <div class="panel history-table-panel">
+    <div class="logs-toolbar">
+      <input
+        type="search"
+        id="logsSearch"
+        placeholder="Search event or source..."
+      >
+
+      <select id="logsSeverityFilter">
+        <option value="ALL">All Severities</option>
+        <option value="LOW">Low</option>
+        <option value="MEDIUM">Medium</option>
+        <option value="HIGH">High</option>
+        <option value="CRITICAL">Critical</option>
+      </select>
+
+      <select id="logsSimulationFilter">
+        <option value="ALL">All Simulations</option>
+      </select>
+
+      <span id="logsResultCount">0 results</span>
+    </div>
+
+    <div class="table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Event ID</th>
+            <th>Timestamp</th>
+            <th>Event Name</th>
+            <th>Source</th>
+            <th>Severity</th>
+            <th>Risk Score</th>
+            <th>Threat Level</th>
+            <th>Simulation</th>
+          </tr>
+        </thead>
+        <tbody id="logsTableBody">
+          <tr>
+            <td colspan="8" class="empty">
+              Loading security logs...
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+
+
+<!-- AI THREAT ANALYSIS PAGE -->
+<section id="analysisPage" class="analysis-page" hidden>
+
+  <div class="history-header">
+    <div>
+      <h2>AI Threat Analysis</h2>
+      <p>
+        Explainable threat assessment based on
+        simulated security events and risk indicators.
+      </p>
+    </div>
+
+    <button class="btn secondary" id="refreshAnalysisBtn">
+      <i data-lucide="refresh-cw"></i>
+      Refresh Analysis
+    </button>
+  </div>
+
+  <!-- SIMULATION SELECTION -->
+  <div class="panel analysis-selector">
+    <div>
+      <h3>Simulation Assessment</h3>
+      <p>Select a saved simulation to investigate its threats.</p>
+    </div>
+
+    <select id="analysisSimulationSelect">
+      <option value="">Loading simulations...</option>
+    </select>
+  </div>
+
+  <!-- SUMMARY CARDS -->
+  <div class="history-stats analysis-stats">
+
+    <div class="panel history-stat">
+      <span>Final Risk Score</span>
+      <strong id="analysisRiskScore">0 / 100</strong>
+    </div>
+
+    <div class="panel history-stat">
+      <span>Threat Classification</span>
+      <strong id="analysisThreatLevel">LOW</strong>
+    </div>
+
+    <div class="panel history-stat">
+      <span>Attack Indicators</span>
+      <strong id="analysisIndicatorCount">0</strong>
+    </div>
+
+  </div>
+
+  <!-- RISK ASSESSMENT -->
+  <div class="panel analysis-assessment">
+    <div class="panel-heading">
+      <h3>Security Risk Assessment</h3>
+      <span id="analysisRiskBadge" class="analysis-risk-badge">
+        LOW
+      </span>
+    </div>
+
+    <div class="analysis-risk-track">
+      <div id="analysisRiskBar"></div>
+    </div>
+
+    <p id="analysisSummary">
+      Select a simulation to generate its security assessment.
+    </p>
+  </div>
+
+  <!-- INDICATORS AND RECOMMENDATIONS -->
+  <div class="analysis-columns">
+
+    <div class="panel analysis-card">
+      <div class="panel-heading">
+        <h3>
+          <i data-lucide="scan-search"></i>
+          Detected Attack Indicators
+        </h3>
+      </div>
+
+      <div id="analysisIndicators" class="analysis-list">
+        <p class="analysis-empty">
+          No simulation selected.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel analysis-card">
+      <div class="panel-heading">
+        <h3>
+          <i data-lucide="shield-check"></i>
+          Recommended Defensive Actions
+        </h3>
+      </div>
+
+      <div id="analysisRecommendations" class="analysis-list">
+        <p class="analysis-empty">
+          Recommendations will appear after analysis.
+        </p>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- EVENT EXPLANATIONS -->
+  <div class="panel history-table-panel analysis-events">
+    <div class="panel-heading">
+      <h3>Event-by-Event Threat Explanation</h3>
+    </div>
+
+    <div class="table-wrap">
+      <table class="history-table">
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Source</th>
+            <th>Severity</th>
+            <th>Risk Score</th>
+            <th>Threat Explanation</th>
+          </tr>
+        </thead>
+
+        <tbody id="analysisEventsBody">
+          <tr>
+            <td colspan="5" class="empty">
+              Select a simulation to view threat explanations.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <p class="analysis-disclaimer">
+    This assessment uses rule-based detection and simulated
+    security events. It does not represent a trained AI model
+    or a live production security monitoring system.
+  </p>
+
+</section>
+<!-- END AI THREAT ANALYSIS PAGE -->
+
+
+    <!-- SIMULATION HISTORY PAGE -->
+    <section id="historyPage" class="history-page" hidden>
+      <div class="history-header">
+        <div>
+          <h2>Simulation History</h2>
+          <p>Review previous attack simulations and saved security events.</p>
+        </div>
+        <button class="btn secondary" id="refreshHistoryBtn">
+          <i data-lucide="refresh-cw"></i>Refresh History
+        </button>
+      </div>
+
+      <div class="history-stats">
+        <div class="panel history-stat">
+          <span>Total Simulations</span>
+          <strong id="totalSimulations">0</strong>
+        </div>
+        <div class="panel history-stat">
+          <span>Completed Simulations</span>
+          <strong id="completedSimulations">0</strong>
+        </div>
+        <div class="panel history-stat">
+          <span>Total Saved Events</span>
+          <strong id="totalSavedEvents">0</strong>
+        </div>
+      </div>
+
+      <div class="panel history-table-panel">
+        <div class="panel-heading">
+          <h3>Previous Simulation Runs</h3>
+        </div>
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Simulation ID</th>
+                <th>Started At</th>
+                <th>Status</th>
+                <th>Risk Score</th>
+                <th>Threat Level</th>
+                <th>Events</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="historyTableBody">
+              <tr><td colspan="7" class="empty">Loading history...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel history-details" id="historyDetails" hidden>
+        <div class="panel-heading">
+          <h3 id="historyDetailsTitle">Simulation Details</h3>
+          <button class="btn secondary" id="closeHistoryDetails">Close</button>
+        </div>
+        <div class="history-detail-info" id="historyDetailInfo"></div>
+        <div class="table-wrap">
+          <table class="history-table">
+            <thead>
+              <tr>
+                <th>Time</th>
+                <th>Event</th>
+                <th>Source</th>
+                <th>Severity</th>
+                <th>Risk Score</th>
+                <th>Threat Level</th>
+              </tr>
+            </thead>
+            <tbody id="historyEventsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+
+<script src="vsa.js"></script>
+</body>
+</html>
